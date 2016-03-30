@@ -1,0 +1,180 @@
+---
+title: 'P1: Describing a Perceptual Phenomenon'
+author: "Tobias Weise"
+date: "March 30, 2016"
+output: 
+  html_document: 
+    number_sections: no
+    theme: journal
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE, warning = F, message = F)
+setwd("C:/Users/Tobias Weise/Dropbox/data_analyst_nanodegree/P1 - Perceptual Phenomenon")
+```
+
+In the following document, I discuss an analysis of a perceptual phenomenon -- the [*Stroop
+effect*](https://en.wikipedia.org/wiki/Stroop_effect). It shows that people take longer and 
+are more likely to make errors when identifying the ink color of words when those words are 
+adjectives describing different colors.  
+
+
+# Describing the experiment
+
+For the experiment, participants are presented with a list of words displayed in different
+ink colors. They are asked to say the color of the ink the word is written in. The individuals
+are presented with two kinds of words-ink combinations. First, *congruent words* are those
+where the color of ink matches the displayed color adjective. Second, *incongruent words* are
+those where the color of ink does not match the displayed color word (e.g. `blue` printed in red).
+Each participant gets the same number of congruent and incongruent words. Time for saying
+the ink color is recorded for both congruent and incongruent words.
+
+
+The *dependent variable* of this experiment is the recorded time to say the color of the
+ink. *The independent variables* are the kinds of words (congruent or incongruent) that
+the test subjects are evaluating.
+
+
+# Developing a hypothesis and a hypothesis test
+
+Let's assume that the time it takes to say the color of ink is dependent on the kind of words
+that test subjects evaluate. Because we know about the Stroop effect, we assume that it will take
+individuals longer to evaluate incongruent words than congruent words. With $\mu_{c}$ representing
+the mean time for evaluating congruent words and $\mu_{i}$ the mean time for representing
+incongruent words, I test the following alternative hypothesis:
+
+$$H_{A}: \mu_{i} > \mu_{c}$$
+
+The null hypothesis is that $\mu_{i}$ and $\mu_{c}$ are equal, thus:
+
+$$H_{0}: \mu_{i} + \mu_{c} = 0$$
+
+To *test the hyptheses*, I run a *dependent t-test for paired samples.* The test is appropriate
+because it fits the repeated treatment experimental design: individuals are treated with both
+congruent and incongruent words. I use a *one-tailed* version of the test because I assume that
+$\mu_{i} > \mu_{c}$. My expectations about the effects of the treatment are directed.
+
+
+# Descriptive Statistics
+
+First, let's have a look at the general data structure. The following table shows the data.
+
+```{r}
+# import data
+data <- read.csv("stroopdata.csv")
+```
+
+```{r, results = "asis"}
+library(googleVis)
+op <- options(gvis.plot.tag='chart')
+Table <- gvisTable(data, options=list(title="Stroop Effect Histogram"))
+plot(Table)
+```
+
+Each row represents the values of the recorded time for congruent and incongruent words of 
+one individual that took the test. 
+
+Next, here are a number of descriptive statistics of the test results:
+
+-  $n = 24$, i.e. 24 people took the test.
+-  $\bar{x_{c}} = `r round(mean(data$Congruent), 2)`$ and $\bar{x_{i}} = `r round(mean(data$Incongruent), 2)`$, 
+    i.e. on average, it took the individuals 14.05 seconds to read the congruent words and 22.02 seconds
+    to read the incongruent words.
+-  $median_{c} = `r round(median(data$Congruent), 2)`$ and $median_{i} = `r round(median(data$Incongruent), 2)`$, 
+    i.e. the individuals in the middle of the distribution took 14.36 seconds for reading congruent words
+    and 21.02 seconds for reading incongruent words.
+-  $\sigma_{c} = `r round(sd(data$Congruent), 2)`$ and $\sigma_{i} = `r round(sd(data$Incongruent), 2)`$, i.e. the standard deviation, and thus the spread of the data, is larger for the incongruent words. 
+
+
+The summary statistics show that there is considerable difference in the data. This can also be
+seen in the following visualizations of the data. First, the following histogram shows the distribution
+of the the dependent variable for each group of words. The chart shows that the distribution for the 
+incongruent words is further to the right on the x-axis, illustrating the larger mean and median for 
+incongruent words and thus that individuals took more time to read the incongruent words. Also, the
+larger spread of the incongruent words response time becomes visible.
+
+
+```{r, results = "asis"}
+
+Histogr <- gvisHistogram(data = data, options=list(title="Histogram: Response Time by Kind of Word", width = "800px", height = "800px"))
+plot(Histogr)
+
+```
+
+The same becomes visible in the boxplots chart below. Again, the boxplots show the larger median for
+the incongruent words. Further, the boxplots well illustrate that the spread of the response times
+is larger for the incongruent words (larger box size, presence of outliers).
+
+```{r}
+library(ggplot2)
+library(tidyr)
+dat <- gather(data, key = experiment, results)
+ggplot(dat) + geom_boxplot(aes(y = results, x = experiment)) + theme_bw() + ggtitle("Boxplots: Response Time by Kind of Word")
+```
+
+# Hypothesis test and interpretation of results
+
+Next, I present the results of the one-tailed dependent t-test for paired samples:
+
+```{r}
+results <- t.test(data$Congruent, data$Incongruent, paired = T, alternative = "less")
+results
+```
+
+Here are the results in more detail:
+
+-  the point estimate of difference is `r mean(data$Congruent) - mean(data$Incongruent)`. Thus on average,
+  people need about 8 seconds more to read incongruent words.
+-  the standard deviation of the difference is `r sd(data$Congruent - data$Incongruent)`
+-  the standard error of the difference is `r (sd(data$Congruent - data$Incongruent) / sqrt(length(data$Incongruent)))`
+-  the t-statistic is `r (mean(data$Congruent) - mean(data$Incongruent)) / ((sd(data$Congruent - data$Incongruent)) / sqrt(length(data$Incongruent)))`
+-  the critical values for an alpha level of 0.05 for a one-tailed test is -1.7139
+-  the calculated t-value is well below -1.7139. Thus we reject the null-hypothesis $H_{0}$
+-  the difference between the groups is statistically significant at a p-value of < 0.0001
+
+Again, I reject $H_{0}$. Thus, the data show that the Stroop effect is indeed at work in the
+sample of individuals. Not only does the descriptive statistic show that reading time for 
+incongruent pairs is longer. The t-test results also show that this difference is significantly
+different with a chance of being caused by change of < 0.001. 
+
+
+# Digging deeper
+
+Is the data normally distributed? This is a core assumption of the t-test. So, one should test if the
+underlying data is normally distributed. Here, I present the results of a Shapiro-Wilk-Test for 
+normality.
+
+First, for the group of congruent words, we find that the data appears to be normally distributed:
+```{r}
+# congruent data
+shapiro.test(data$Congruent)
+```
+
+However, for the group of incongruent words, we find that they are not:
+```{r}
+shapiro.test(data$Incongruent)
+library(car)
+qqp(data$Incongruent, distribution = "norm")
+```
+
+As the *q-q-plot* suggests, there are two outliers in the data that might influence results because
+they are not covered by the normal distribution. Those are cases `15` and `20` that have extremely
+high response times.
+
+Thus, a first strategy could be to exclude those cases and re-run the t-test. Here are the results,
+which still confirm the findings of the first t-test. Thus, the two outlier cases do not strongly 
+bias the data and the results of the original t-test.
+
+```{r}
+# remove outliers
+new_data <- data
+new_data[15, ] <- NA
+new_data[20, ] <- NA
+new_data <- na.omit(new_data)
+
+# run the test
+t.test(new_data$Congruent, new_data$Incongruent, paired = T, alternative = "less")
+```
+

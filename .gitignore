@@ -2,7 +2,8 @@
 *.RProj.user/
 *.RProj
 .ipynb_checkpoints/
-
+*.Rdata
+*.Rhistory
 
 # Windows image file caches
 Thumbs.db
@@ -52,3 +53,4 @@ Network Trash Folder
 Temporary Items
 .apdisk
 planning.txt
+.Rproj.user
