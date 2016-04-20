@@ -4,6 +4,9 @@
 .ipynb_checkpoints/
 *.Rdata
 *.Rhistory
+C_Data_Analysis_Process/
+C_NumPy and Pandas for 1D Data/
+C_NumPy and Pandas for 2D Data/
 
 # Windows image file caches
 Thumbs.db
