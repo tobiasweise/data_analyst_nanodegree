@@ -1,0 +1,5 @@
+## Sources used
+
+-  as a primary source, I used the course material provided in the video-lessons
+-  for memory-friendly parsing of XML, I read http://www.ibm.com/developerworks/library/x-hiperfparse/
+-  for working with `child.iter()`, I have read various stackoverflow discussions to understand how it works
